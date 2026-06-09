@@ -1,5 +1,5 @@
 anthropic
 caldav
+fpdf2
 requests
-twilio
 python-dotenv
