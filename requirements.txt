@@ -1,0 +1,5 @@
+anthropic
+caldav
+requests
+twilio
+python-dotenv
