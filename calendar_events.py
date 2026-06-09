@@ -1,6 +1,7 @@
 import caldav
 import os
 from datetime import datetime, timedelta
+from icalendar import Calendar
 
 
 def get_todays_events() -> list[str]:
@@ -17,21 +18,27 @@ def get_todays_events() -> list[str]:
     start = datetime.combine(today, datetime.min.time())
     end = start + timedelta(days=1)
 
-    events = []
+    events = []  # list of (sort_minutes, display_string)
     for calendar in calendars:
         try:
             results = calendar.date_search(start=start, end=end, expand=True)
             for event in results:
-                vevent = event.vobject_instance.vevent
-                summary = str(vevent.summary.value) if hasattr(vevent, "summary") else "Untitled"
-
-                # Include time if not an all-day event
-                if hasattr(vevent, "dtstart") and hasattr(vevent.dtstart.value, "hour"):
-                    start_time = vevent.dtstart.value.strftime("%-I:%M%p").lower()
-                    events.append(f"{start_time} – {summary}")
-                else:
-                    events.append(summary)
+                cal = Calendar.from_ical(event.data)
+                for component in cal.walk():
+                    if component.name != "VEVENT":
+                        continue
+                    summary = str(component.get("SUMMARY", "Untitled"))
+                    dtstart = component.get("DTSTART")
+                    if dtstart and hasattr(dtstart.dt, "hour"):
+                        dt = dtstart.dt
+                        sort_key = dt.hour * 60 + dt.minute
+                        time_str = dt.strftime("%-I:%M%p").lower()
+                        events.append((sort_key, f"{time_str} - {summary}"))
+                    else:
+                        # All-day event sorts to top
+                        events.append((0, summary))
         except Exception:
             continue
 
-    return sorted(events)
+    events.sort(key=lambda x: x[0])
+    return [display for _, display in events]

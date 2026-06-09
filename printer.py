@@ -3,6 +3,20 @@ from datetime import datetime
 from fpdf import FPDF
 
 
+def _sanitize(text: str) -> str:
+    """Replace common Unicode characters that Helvetica (Latin-1) can't encode."""
+    replacements = {
+        "—": "-", "–": "-",   # em dash, en dash
+        "‘": "'", "’": "'",   # curly single quotes
+        "“": '"', "”": '"',   # curly double quotes
+        "…": "...",                 # ellipsis
+        "•": "*",                  # bullet
+    }
+    for src, dst in replacements.items():
+        text = text.replace(src, dst)
+    return text.encode("latin-1", errors="replace").decode("latin-1")
+
+
 class _BriefingPDF(FPDF):
     def footer(self):
         self.set_y(-12)
@@ -38,7 +52,7 @@ def generate_pdf(weather: str, events: list[str], joke: str, fact: str) -> str:
     # ── Header ──────────────────────────────────────────────
     pdf.set_font("Helvetica", "B", 20)
     pdf.set_text_color(20, 20, 20)
-    pdf.cell(0, 10, "Good morning, Paolo & Stephanie", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 10, "Good morning, Posadas Family", new_x="LMARGIN", new_y="NEXT")
 
     pdf.set_font("Helvetica", "", 8)
     pdf.set_text_color(150, 150, 150)
@@ -53,10 +67,10 @@ def generate_pdf(weather: str, events: list[str], joke: str, fact: str) -> str:
     pdf.ln(8)
 
     # ── Weather ─────────────────────────────────────────────
-    _section_label(pdf, "WEATHER — BELLEVUE, WA")
+    _section_label(pdf, "WEATHER - BELLEVUE, WA")
     pdf.set_font("Helvetica", "", 13)
     pdf.set_text_color(20, 20, 20)
-    pdf.multi_cell(0, 7, weather)
+    pdf.multi_cell(0, 7, _sanitize(weather), new_x="LMARGIN", new_y="NEXT")
     pdf.ln(5)
     _divider(pdf)
 
@@ -66,7 +80,7 @@ def generate_pdf(weather: str, events: list[str], joke: str, fact: str) -> str:
         for event in events:
             pdf.set_font("Helvetica", "", 12)
             pdf.set_text_color(20, 20, 20)
-            pdf.multi_cell(0, 7, f"  {event}")
+            pdf.multi_cell(0, 7, _sanitize(f"  {event}"), new_x="LMARGIN", new_y="NEXT")
     else:
         pdf.set_font("Helvetica", "I", 12)
         pdf.set_text_color(160, 160, 160)
@@ -78,7 +92,7 @@ def generate_pdf(weather: str, events: list[str], joke: str, fact: str) -> str:
     _section_label(pdf, "DAD JOKE OF THE DAY")
     pdf.set_font("Helvetica", "I", 12)
     pdf.set_text_color(60, 60, 60)
-    pdf.multi_cell(0, 7, joke)
+    pdf.multi_cell(0, 7, _sanitize(joke), new_x="LMARGIN", new_y="NEXT")
     pdf.ln(5)
     _divider(pdf)
 
@@ -86,7 +100,7 @@ def generate_pdf(weather: str, events: list[str], joke: str, fact: str) -> str:
     _section_label(pdf, "NATURE FACT")
     pdf.set_font("Helvetica", "", 12)
     pdf.set_text_color(60, 60, 60)
-    pdf.multi_cell(0, 7, fact)
+    pdf.multi_cell(0, 7, _sanitize(fact), new_x="LMARGIN", new_y="NEXT")
 
     output_path = "/tmp/daily_briefing.pdf"
     pdf.output(output_path)
