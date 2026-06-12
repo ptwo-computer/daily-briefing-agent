@@ -8,7 +8,7 @@
     <key>ProgramArguments</key>
     <array>
         <string>/bin/bash</string>
-        <string>/Users/paoloposadas/daily-briefing-agent/run.sh</string>
+        <string>/Users/paoloposadas/Documents/Claude/Projects/daily-briefing-agent/run.sh</string>
     </array>
 
     <key>StartCalendarInterval</key>
@@ -20,9 +20,9 @@
     </dict>
 
     <key>StandardOutPath</key>
-    <string>/Users/paoloposadas/daily-briefing-agent/logs/output.log</string>
+    <string>/Users/paoloposadas/Documents/Claude/Projects/daily-briefing-agent/logs/output.log</string>
     <key>StandardErrorPath</key>
-    <string>/Users/paoloposadas/daily-briefing-agent/logs/error.log</string>
+    <string>/Users/paoloposadas/Documents/Claude/Projects/daily-briefing-agent/logs/error.log</string>
 
     <key>RunAtLoad</key>
     <false/>

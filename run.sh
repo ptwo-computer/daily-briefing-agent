@@ -1,4 +1,4 @@
 #!/bin/bash
-cd /Users/paoloposadas/daily-briefing-agent
+cd /Users/paoloposadas/Documents/Claude/Projects/daily-briefing-agent
 source .venv/bin/activate
 python main.py
